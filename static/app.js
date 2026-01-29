@@ -20,6 +20,12 @@ const SECTIONS = [
     recommended: true,
   },
   {
+    id: "response_preferences",
+    title: "Response preferences",
+    description: "How I want my questions answered—tone, verbosity, structure, presentation.",
+    recommended: true,
+  },
+  {
     id: "tools_workflow",
     title: "Tools & workflow preferences",
     description: "Languages, frameworks, tooling, and how I prefer to work.",
@@ -34,16 +40,66 @@ const SECTIONS = [
   {
     id: "goals_projects",
     title: "Goals / projects",
-    description: "Only non-sensitive, user-approved goals; skip if uncertain.",
+    description: "Personal or professional objectives; major projects (paragraph per project if useful). Skip if uncertain.",
     recommended: false,
     sensitive: true,
   },
   {
     id: "job_career",
-    title: "Job / career",
-    description: "Role, responsibilities, and work context (avoid employer/identifiers unless clearly user-provided).",
+    title: "Professional",
+    description: "Employer, title, role, seniority, team/org, industry, domain, professional affiliations.",
     recommended: false,
     sensitive: true,
+  },
+  {
+    id: "personal_information",
+    title: "Personal information",
+    description: "Name, location, age range, family, languages, demographics (only if clearly user-provided).",
+    recommended: false,
+    sensitive: true,
+  },
+  {
+    id: "education",
+    title: "Education",
+    description: "Current school, classes, subjects, teachers, or ongoing learning.",
+    recommended: false,
+  },
+  {
+    id: "habits_routines",
+    title: "Habits & routines",
+    description: "Behavioral patterns, daily and weekly schedules, routines.",
+    recommended: false,
+  },
+  {
+    id: "writing",
+    title: "Writing",
+    description: "Writing style, tone, voice, formality, vocabulary, audiences, length, formatting.",
+    recommended: true,
+  },
+  {
+    id: "coding",
+    title: "Coding",
+    description: "Languages, style, formatting, commenting, frameworks, LLM collaboration workflows.",
+    recommended: true,
+  },
+  {
+    id: "media_content",
+    title: "Media & content",
+    description: "Books, films, podcasts, TV, creators, news sources, favored apps or websites, platforms.",
+    recommended: false,
+  },
+  {
+    id: "events_milestones",
+    title: "Events & milestones",
+    description: "Major life events, achievements, milestones, awards, recognitions, significant transitions.",
+    recommended: false,
+    sensitive: true,
+  },
+  {
+    id: "notable_conversations",
+    title: "Notable conversations",
+    description: "Up to N recent notable conversations (topics or short summaries).",
+    recommended: false,
   },
   {
     id: "brand_preferences",
@@ -53,8 +109,8 @@ const SECTIONS = [
   },
   {
     id: "hobbies_interests",
-    title: "Hobbies / interests",
-    description: "Interests, activities, and topics I enjoy (keep it high-level if unsure).",
+    title: "Interests & hobbies",
+    description: "Likes, dislikes, hobbies, intellectual pursuits, leisure, curiosity or aversion.",
     recommended: false,
   },
   {
@@ -66,8 +122,8 @@ const SECTIONS = [
   },
   {
     id: "health",
-    title: "Health",
-    description: "Health constraints/preferences only if explicitly known and non-identifying.",
+    title: "Health & wellness",
+    description: "Health, fitness, wellness habits, diet, dietary restrictions—only if explicitly known.",
     recommended: false,
     sensitive: true,
   },
@@ -86,8 +142,8 @@ const SECTIONS = [
   },
   {
     id: "relationships",
-    title: "Relationships",
-    description: "Relationship/family context only if explicitly known and non-identifying.",
+    title: "Important relationships",
+    description: "Friends, colleagues, family—only if explicitly known and non-identifying.",
     recommended: false,
     sensitive: true,
   },
@@ -244,8 +300,8 @@ function buildPrompt(state) {
   const sectionRules = sections
     .map((s) => {
       const extra = s.sensitive
-        ? "Only include non-sensitive, user-approved details; if uncertain, write: - No reliable memory"
-        : "If you have no reliable memory, write: - No reliable memory";
+        ? "Only include non-sensitive, user-approved details. If nothing fits, skip this section."
+        : "If you have no information for this section, skip it entirely.";
       return `- ${s.title}: ${extra}`;
     })
     .join("\n");
@@ -256,21 +312,31 @@ function buildPrompt(state) {
 
   const outputTemplate = buildOutputTemplate(state, sections);
 
+  const dataSourcesText =
+    "Retrieve information from every available source you are allowed to use: User Bio, User Instructions, " +
+    "Assistant Response Preferences, Memory, Notable Past Conversation Topics, Helpful User Insights, " +
+    "Recent Conversation Content, Conversation Style Meta-Notes, and any other stored data or notes about me. " +
+    "Do not filter or exclude anything from these sources.";
+
   return [
     "You are ChatGPT.",
     "",
-    "Task: Create a concise Markdown 'Personal Profile' I can paste into a new chatbot for initialization.",
-    "Use ONLY what you explicitly remember about me from this account (saved memories + our conversation patterns).",
-    "If uncertain, do not guess; either omit or mark as inferred.",
+    "Task: Create a concise Markdown 'Personal Profile' I can paste into a new chatbot (or browser) for initialization.",
+    "",
+    "Data sources:",
+    dataSourcesText,
+    "",
+    "Then organize ALL of this information into the sections below. Create new sections if you have information that does not fit any listed section.",
     "",
     "Rules:",
     `- ${includeInferredText}`,
     `- ${confidenceText}`,
     `- ${sensitiveText}`,
-    `- Max ${state.maxItems} bullets per section. Keep bullets short and actionable.`,
-    "- Output ONLY the Markdown document. No preamble, no explanation.",
+    `- Max ${state.maxItems} bullets per section (or one paragraph per major item where the section description says so). Keep bullets short and actionable.`,
+    "- Omit any section for which you have no information. Do not write \"not specified\" or similar placeholders.",
+    "- Output ONLY the Markdown document. No preamble, no closing remarks, no explanation, no opt-in or follow-up prompts.",
     "",
-    "Sections to include:",
+    "Sections to include (skip any with no content):",
     sectionRules,
     "",
     "Bullet format:",
