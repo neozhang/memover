@@ -251,11 +251,8 @@ function sectionMatchesFilter(section, filterText) {
   return haystack.includes(q);
 }
 
-function visibleSections(state, filterText, showSelectedOnly) {
-  return SECTIONS.filter((s) => {
-    if (showSelectedOnly && !state.selected[s.id]) return false;
-    return sectionMatchesFilter(s, filterText);
-  });
+function visibleSections(state, filterText) {
+  return SECTIONS.filter((s) => sectionMatchesFilter(s, filterText));
 }
 
 function sectionHeading(title) {
@@ -417,7 +414,6 @@ function main() {
 
   const sectionsEl = byId("sections");
   const sectionFilterEl = byId("sectionFilter");
-  const showSelectedOnlyEl = byId("showSelectedOnly");
   const sectionCountEl = byId("sectionCount");
   const promptEl = byId("prompt");
 
@@ -456,17 +452,13 @@ function main() {
   }
 
   function rerenderSections() {
-    const visible = visibleSections(state, sectionFilterText, showSelectedOnlyEl.checked);
+    const visible = visibleSections(state, sectionFilterText);
     renderSections(sectionsEl, state, visible, onSectionToggle);
     updateSectionCount(visible);
   }
 
   sectionFilterEl.addEventListener("input", () => {
     sectionFilterText = sectionFilterEl.value;
-    rerenderSections();
-  });
-
-  showSelectedOnlyEl.addEventListener("change", () => {
     rerenderSections();
   });
 
