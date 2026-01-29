@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ChatGPT Memory Migration</title>
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <header class="header">
+            <div class="header-inner">
+                <div class="eyebrow">Profile Prompt Builder</div>
+                <h1>ChatGPT Memory Migration</h1>
+                <p class="subtitle">
+                    Select sections, copy the prompt, paste into ChatGPT to
+                    extract your explicit/inferred memories.
+                </p>
+            </div>
+        </header>
+
+        <main class="main">
+            <section class="panel">
+                <h2>Sections</h2>
+                <div class="sections-toolbar" aria-label="Section filters">
+                    <label class="sections-filter">
+                        <span class="sr-only">Filter sections</span>
+                        <input
+                            id="sectionFilter"
+                            type="search"
+                            placeholder="Filter sections (e.g. travel, job)"
+                            autocomplete="off"
+                        />
+                    </label>
+                    <label class="sections-toggle">
+                        <input id="showSelectedOnly" type="checkbox" />
+                        Selected only
+                    </label>
+                    <div
+                        id="sectionCount"
+                        class="sections-count"
+                        aria-live="polite"
+                    ></div>
+                </div>
+                <div
+                    id="sections"
+                    class="sections"
+                    aria-label="Profile sections"
+                ></div>
+
+                <h2>Options</h2>
+                <form id="options" class="options" aria-label="Prompt options">
+                    <label class="option">
+                        <input id="includeInferred" type="checkbox" />
+                        Include inferred items
+                    </label>
+                    <label class="option">
+                        <input id="includeConfidence" type="checkbox" />
+                        Include confidence + basis
+                    </label>
+                    <label class="option">
+                        <input id="excludeSensitive" type="checkbox" />
+                        Exclude sensitive personal data
+                    </label>
+
+                    <label class="option inline">
+                        Max bullets per section
+                        <input
+                            id="maxItems"
+                            type="number"
+                            min="1"
+                            max="25"
+                            step="1"
+                        />
+                    </label>
+                </form>
+
+                <div class="actions">
+                    <button
+                        id="selectRecommended"
+                        type="button"
+                        class="btn primary"
+                    >
+                        Select recommended
+                    </button>
+                    <button id="selectAll" type="button" class="btn">
+                        Select all
+                    </button>
+                    <button id="clearAll" type="button" class="btn ghost">
+                        Clear
+                    </button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="prompt-header">
+                    <h2>Generated prompt</h2>
+                    <div class="prompt-actions">
+                        <button
+                            id="copyPrompt"
+                            type="button"
+                            class="btn primary"
+                        >
+                            Copy
+                        </button>
+                        <a
+                            class="link btn ghost"
+                            href="https://chatgpt.com/"
+                            target="_blank"
+                            rel="noreferrer"
+                            >Open ChatGPT</a
+                        >
+                    </div>
+                </div>
+                <textarea
+                    id="prompt"
+                    class="prompt"
+                    readonly
+                    spellcheck="false"
+                    aria-label="Generated prompt"
+                ></textarea>
+                <div id="status" class="status" aria-live="polite"></div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-inner">
+                Tip: paste the prompt into the ChatGPT account whose
+                history/memory you want to extract.
+            </div>
+        </footer>
+
+        <script src="./app.js"></script>
+    </body>
+</html>
