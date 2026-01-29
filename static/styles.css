@@ -430,6 +430,11 @@ input[type="number"]:focus {
   margin-bottom: 0;
 }
 
+.footer-disclaimer {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .footer-credit {
   font-size: 12px;
   color: var(--muted);
