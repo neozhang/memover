@@ -440,11 +440,13 @@ input[type="number"]:focus {
   color: var(--muted);
 }
 
+.footer-disclaimer a,
 .footer-credit a {
   color: var(--accent);
   text-decoration: none;
 }
 
+.footer-disclaimer a:hover,
 .footer-credit a:hover {
   text-decoration: underline;
 }
